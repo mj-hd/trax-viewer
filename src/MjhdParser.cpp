@@ -25,6 +25,7 @@ bool MjhdParser::operator<<(std::istream& stream) {
 
             if (boost::starts_with(line, "  @")) {
                 this->_width = (line.length() - 1) / 2;
+                this->_height = 0;
                 this->_index = 0;
                 this->_tiles.clear();
 
@@ -38,6 +39,7 @@ bool MjhdParser::operator<<(std::istream& stream) {
 
                 bool wasWhiteSpace = false;
                 this->_index++;
+                this->_height++;
                 this->_tiles.resize(this->_index + 1);
 
                 for (auto it : line) {

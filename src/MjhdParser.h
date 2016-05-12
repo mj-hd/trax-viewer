@@ -19,7 +19,8 @@ public:
     const_iterator begin() const;
     const_iterator end() const;
 
-    int GetWidth() const { return this->_width; }
+    int GetWidth() const  { return this->_width; }
+    int GetHeight() const { return this->_height; }
 
 protected:
     std::vector<std::vector<Tile>> _tiles;
@@ -27,7 +28,8 @@ protected:
 private:
     MjhdParserState _state;
 
-    unsigned int _width = 0;
+    unsigned int _width  = 0;
+    unsigned int _height = 0;
     unsigned int _index;
 };
 

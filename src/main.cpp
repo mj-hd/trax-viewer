@@ -6,6 +6,9 @@
 #include "MjhdParser.h"
 #include "TileRenderer.h"
 
+#define WINDOW_WIDTH  640
+#define WINDOW_HEIGHT 480
+
 SDL_Window* window;
 SDL_Renderer* renderer;
 TileRenderer* tileRenderer;
@@ -16,11 +19,11 @@ boost::atomic<bool> isParsing(false);
 void thEventLoop() {
     SDL_Init(SDL_INIT_VIDEO);
 
-    window = SDL_CreateWindow("Trax", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 480, 0);
+    window = SDL_CreateWindow("Trax", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
 
     renderer = SDL_CreateRenderer(window, -1, 0);
 
-    tileRenderer = new TileRenderer(renderer);
+    tileRenderer = new TileRenderer(renderer, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     SDL_Event ev;
     while(true) {

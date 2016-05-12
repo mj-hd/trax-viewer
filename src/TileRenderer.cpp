@@ -6,18 +6,21 @@
 #include <sstream>
 #include <unistd.h>
 
+#include <algorithm>
+
 #include "IParser.h"
 
 const char* TileRenderer::CrossTilePath = "./resources/cross.png";
 const char* TileRenderer::SlashTilePath = "./resources/slash.png";
 const char* TileRenderer::FontMapPath   = "./resources/font.png";
 
-const int TileRenderer::TileBaseSize = 50;
 const int TileRenderer::FontMapSize  = 16;
 const int TileRenderer::FontMapWidth = 32;
 
-TileRenderer::TileRenderer(SDL_Renderer* renderer) {
+TileRenderer::TileRenderer(SDL_Renderer* renderer, int width, int height) {
     this->_renderer = renderer;
+    this->_width    = width;
+    this->_height   = height;
 
     auto crossTileSurface = IMG_Load(TileRenderer::CrossTilePath);
     auto slashTileSurface = IMG_Load(TileRenderer::SlashTilePath);
@@ -47,10 +50,10 @@ TileRenderer::~TileRenderer() {
 inline void TileRenderer::_renderColumns(int width) {
     for (auto x = 0; x < width; x++) {
         SDL_Rect dstRect;
-        dstRect.w = TileRenderer::TileBaseSize;
-        dstRect.h = TileRenderer::TileBaseSize;
-        dstRect.x = (x + 1) * dstRect.w;
-        dstRect.y = 0;
+        dstRect.w = _getScaledTileSize();
+        dstRect.h = _getScaledTileSize();
+        dstRect.x = _getScaledOrtX() + (x + 1) * dstRect.w;
+        dstRect.y = _getScaledOrtY();
 
         SDL_Rect srcRect;
         srcRect.w = TileRenderer::FontMapSize;
@@ -64,10 +67,10 @@ inline void TileRenderer::_renderColumns(int width) {
 
 inline void TileRenderer::_renderRow(int row) {
     SDL_Rect dstRect;
-    dstRect.w = TileRenderer::TileBaseSize;
-    dstRect.h = TileRenderer::TileBaseSize;
-    dstRect.x = 0;
-    dstRect.y = dstRect.h * row;
+    dstRect.w = _getScaledTileSize();
+    dstRect.h = _getScaledTileSize();
+    dstRect.x = _getScaledOrtX();
+    dstRect.y = _getScaledOrtY() + dstRect.h * row;
 
     SDL_Rect srcRect;
     srcRect.w = TileRenderer::FontMapSize;
@@ -84,26 +87,43 @@ inline void TileRenderer::_renderGrid(int width, int height) {
 
     for (auto x = 0; x < width; x++) {
         SDL_RenderDrawLine(this->_renderer,
-                (x + 1) * TileRenderer::TileBaseSize,
-                0,
-                (x + 1) * TileRenderer::TileBaseSize,
-                height  * TileRenderer::TileBaseSize
+                _getScaledOrtX() + (x + 1) * _getScaledTileSize(),
+                _getScaledOrtY(),
+                _getScaledOrtX() + (x + 1) * _getScaledTileSize(),
+                _getScaledOrtY() + height  * _getScaledTileSize()
             );
     }
 
     for (auto y = 0; y < height; y++) {
          SDL_RenderDrawLine(this->_renderer,
-                 0,
-                 (y + 1) * TileRenderer::TileBaseSize,
-                 width   * TileRenderer::TileBaseSize,
-                 (y + 1) * TileRenderer::TileBaseSize
+                 _getScaledOrtX(),
+                 _getScaledOrtY() + (y + 1) * _getScaledTileSize(),
+                 _getScaledOrtX() + width   * _getScaledTileSize(),
+                 _getScaledOrtY() + (y + 1) * _getScaledTileSize()
             );
     }
 }
 
+inline void TileRenderer::_updateScaling(int width, int height) {
+    if ((double)width  / (double)this->_width > (double)height / (double)this->_height)
+        this->_scaledTileSize = this->_width / width;
+    else
+        this->_scaledTileSize = this->_height / height;
+
+    this->_scaledOrtX = (this->_width  - this->_scaledTileSize * width)  / 2;
+    this->_scaledOrtY = (this->_height - this->_scaledTileSize * height) / 2;
+}
+
 void TileRenderer::Render(IParser* parser) {
 
-    _renderColumns(parser->GetWidth());
+    auto width = parser->GetWidth();
+    auto height = parser->GetHeight();
+
+    if (width == 0 || height == 0) return;
+
+    _updateScaling(width + 1, height + 1);
+
+    _renderColumns(width);
 
     auto x = 0;
     auto y = 0;
@@ -117,10 +137,10 @@ void TileRenderer::Render(IParser* parser) {
 
             SDL_Rect rect;
 
-            rect.w = TileRenderer::TileBaseSize;
-            rect.h = TileRenderer::TileBaseSize;
-            rect.x = x * rect.w;
-            rect.y = y * rect.h;
+            rect.w = _getScaledTileSize();
+            rect.h = _getScaledTileSize();
+            rect.x = _getScaledOrtX() + x * rect.w;
+            rect.y = _getScaledOrtY() + y * rect.h;
 
             x++;
 
