@@ -19,13 +19,15 @@ public:
     const_iterator begin() const;
     const_iterator end() const;
 
+    int GetWidth() const { return this->_width; }
+
 protected:
     std::vector<std::vector<Tile>> _tiles;
 
 private:
     MjhdParserState _state;
 
-    unsigned int _width;
+    unsigned int _width = 0;
     unsigned int _index;
 };
 

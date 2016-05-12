@@ -30,6 +30,15 @@ void thEventLoop() {
         while(SDL_PollEvent(&ev)) {
             if (ev.type == SDL_QUIT)
                 return;
+
+            switch(ev.type) {
+                case SDL_KEYDOWN:
+                    // TODO: implement here
+                    break;
+                case SDL_KEYUP:
+                    // TODO: implement here
+                    break;
+            }
         }
 
         while (isParsing) {}

@@ -16,6 +16,8 @@ public:
 
     virtual const_iterator begin() const = 0;
     virtual const_iterator end() const = 0;
+
+    virtual int GetWidth() const = 0;
 };
 
 #endif
