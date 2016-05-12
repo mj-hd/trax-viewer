@@ -16,44 +16,6 @@ IParser* parser;
 
 boost::atomic<bool> isParsing(false);
 
-void thEventLoop() {
-    SDL_Init(SDL_INIT_VIDEO);
-
-    window = SDL_CreateWindow("Trax", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
-
-    renderer = SDL_CreateRenderer(window, -1, 0);
-
-    tileRenderer = new TileRenderer(renderer, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-    SDL_Event ev;
-    while(true) {
-        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderClear(renderer);
-
-        while(SDL_PollEvent(&ev)) {
-            if (ev.type == SDL_QUIT)
-                return;
-
-            switch(ev.type) {
-                case SDL_KEYDOWN:
-                    // TODO: implement here
-                    break;
-                case SDL_KEYUP:
-                    // TODO: implement here
-                    break;
-            }
-        }
-
-        while (isParsing) {}
-
-        tileRenderer->Render(parser);
-
-        SDL_RenderPresent(renderer);
-
-        SDL_Delay(16);
-    }
-}
-
 void thStdInput() {
 
     parser = new MjhdParser();
@@ -72,11 +34,57 @@ void thStdInput() {
 }
 
 int main(int argc, char* argv[]) {
-    boost::thread threadEventLoop(thEventLoop);
     boost::thread threadStdInput(thStdInput);
 
-    threadEventLoop.join();
-    threadStdInput.join();
+    SDL_Init(SDL_INIT_EVERYTHING);
+
+    window = SDL_CreateWindow("Trax", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    tileRenderer = new TileRenderer(renderer, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    SDL_Event ev;
+    while(true) {
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        SDL_RenderClear(renderer);
+
+        while(SDL_PollEvent(&ev) || isParsing) {
+            if (ev.type == SDL_QUIT)
+                goto end;
+
+            switch(ev.type) {
+                case SDL_KEYDOWN:
+                    switch (ev.key.keysym.sym) {
+                        case SDLK_LEFT:
+
+                            break;
+                        case SDLK_RIGHT:
+
+                            break;
+                    }
+                    break;
+                case SDL_KEYUP:
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    if (ev.button.button == SDL_BUTTON_LEFT) {
+
+                    }
+                    break;
+                case SDL_MOUSEMOTION:
+                    // ev.motion.x, y
+                    break;
+            }
+        }
+
+        tileRenderer->Render(parser);
+
+        SDL_RenderPresent(renderer);
+
+        SDL_Delay(16);
+    }
+
+end:
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
