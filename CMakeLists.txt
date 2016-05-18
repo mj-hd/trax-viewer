@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.4)
 
-project(trax-viewer CXX)
+project(trax-viewer CXX C)
 
 set(BINARY_NAME trax-viewer)
 
